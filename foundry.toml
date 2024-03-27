@@ -11,7 +11,9 @@ remappings = ["@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
                 "@chainlink/contracts/=lib/chainlink/contracts/",
                 "@uniswap/v3-periphery/=lib/v3-periphery/",
                 "@uniswap/v3-core/=lib/v3-core/",
-                "forge-safe/=lib/forge-safe/src/"]
+                "forge-safe/=lib/forge-safe/src/",
+                "@chimera/=lib/chimera/src/"
+                ]
 fs_permissions = [{ access = "read-write", path = "./"}]
 optimizer = true
 optimizer_runs = 300

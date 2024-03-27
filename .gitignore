@@ -26,6 +26,9 @@ package-lock.json
 echidna-corpus
 crytic-export/
 
+# medusa
+medusa
+
 # logs
 /.txt
 diagrams/

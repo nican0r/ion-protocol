@@ -28,3 +28,6 @@
 [submodule "lib/solarray"]
 	path = lib/solarray
 	url = https://github.com/evmcheb/solarray
+[submodule "lib/chimera"]
+	path = lib/chimera
+	url = https://github.com/Recon-Fuzz/chimera
