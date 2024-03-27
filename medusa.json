@@ -71,7 +71,7 @@
 	"compilation": {
 		"platform": "crytic-compile",
 		"platformConfig": {
-			"target": "test/invariant/IonPool/IonPoolEchidna.sol",
+			"target": ".",
 			"solcVersion": "",
 			"exportDirectory": "",
 			"args": [

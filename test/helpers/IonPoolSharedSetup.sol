@@ -526,6 +526,6 @@ abstract contract IonPoolSharedSetup is BaseTestSetup, YieldOracleSharedSetup {
     // @audit commenting this out to remove invalid invariant break by medusa
     // function _depositInterestGains(uint256 amount) public {
     //     ionPool.addLiquidity(amount);
-    //     underlying.mint(address(ionPool), amount)
+    //     underlying.mint(address(ionPool), amount);
     // }
 }

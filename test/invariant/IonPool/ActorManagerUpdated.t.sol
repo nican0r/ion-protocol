@@ -48,53 +48,51 @@ contract ActorManager is CommonBase, StdCheats, StdUtils, CryticAsserts {
             ionPool
         );
 
-        // if (globalUtilizationRate < 0.5e45) {
-        functionIndex = bound(functionIndex, 0, 4);
+        if (globalUtilizationRate < 0.5e45) {
+            functionIndex = bound(functionIndex, 0, 4);
 
-        // if (functionIndex == 0) {
-        borrow(userIndex, ilkIndex, amount, warpTimeAmount);
-        // } else if (functionIndex == 1) {
-        //     depositCollateral(userIndex, ilkIndex, amount, warpTimeAmount);
-        // } else if (functionIndex == 2) {
-        //     gemJoin(userIndex, ilkIndex, amount, warpTimeAmount);
-        // } else {
-        //     withdraw(userIndex, amount, warpTimeAmount);
-        // }
-        // }
+            if (functionIndex == 0) {
+                borrow(userIndex, ilkIndex, amount, warpTimeAmount);
+            } else if (functionIndex == 1) {
+                depositCollateral(userIndex, ilkIndex, amount, warpTimeAmount);
+            } else if (functionIndex == 2) {
+                gemJoin(userIndex, ilkIndex, amount, warpTimeAmount);
+            } else {
+                withdraw(userIndex, amount, warpTimeAmount);
+            }
+        } else if (globalUtilizationRate > 0.95e45) {
+            functionIndex = bound(functionIndex, 0, 4);
 
-        // else if (globalUtilizationRate > 0.95e45) {
-        //     functionIndex = bound(functionIndex, 0, 4);
+            if (functionIndex == 0) {
+                repay(userIndex, ilkIndex, amount, warpTimeAmount);
+            } else if (functionIndex == 1) {
+                withdrawCollateral(userIndex, ilkIndex, amount, warpTimeAmount);
+            } else if (functionIndex == 2) {
+                gemExit(userIndex, ilkIndex, amount, warpTimeAmount);
+            } else {
+                supply(userIndex, amount, warpTimeAmount);
+            }
+        } else {
+            functionIndex = bound(functionIndex, 0, 8);
 
-        //     if (functionIndex == 0) {
-        //         repay(userIndex, ilkIndex, amount, warpTimeAmount);
-        //     } else if (functionIndex == 1) {
-        //         withdrawCollateral(userIndex, ilkIndex, amount, warpTimeAmount);
-        //     } else if (functionIndex == 2) {
-        //         gemExit(userIndex, ilkIndex, amount, warpTimeAmount);
-        //     } else {
-        //         supply(userIndex, amount, warpTimeAmount);
-        //     }
-        // } else {
-        //     functionIndex = bound(functionIndex, 0, 8);
-
-        //     if (functionIndex == 0) {
-        //         borrow(userIndex, ilkIndex, amount, warpTimeAmount);
-        //     } else if (functionIndex == 1) {
-        //         depositCollateral(userIndex, ilkIndex, amount, warpTimeAmount);
-        //     } else if (functionIndex == 2) {
-        //         gemJoin(userIndex, ilkIndex, amount, warpTimeAmount);
-        //     } else if (functionIndex == 3) {
-        //         withdraw(userIndex, amount, warpTimeAmount);
-        //     } else if (functionIndex == 4) {
-        //         repay(userIndex, ilkIndex, amount, warpTimeAmount);
-        //     } else if (functionIndex == 5) {
-        //         withdrawCollateral(userIndex, ilkIndex, amount, warpTimeAmount);
-        //     } else if (functionIndex == 6) {
-        //         gemExit(userIndex, ilkIndex, amount, warpTimeAmount);
-        //     } else {
-        //         supply(userIndex, amount, warpTimeAmount);
-        //     }
-        // }
+            if (functionIndex == 0) {
+                borrow(userIndex, ilkIndex, amount, warpTimeAmount);
+            } else if (functionIndex == 1) {
+                depositCollateral(userIndex, ilkIndex, amount, warpTimeAmount);
+            } else if (functionIndex == 2) {
+                gemJoin(userIndex, ilkIndex, amount, warpTimeAmount);
+            } else if (functionIndex == 3) {
+                withdraw(userIndex, amount, warpTimeAmount);
+            } else if (functionIndex == 4) {
+                repay(userIndex, ilkIndex, amount, warpTimeAmount);
+            } else if (functionIndex == 5) {
+                withdrawCollateral(userIndex, ilkIndex, amount, warpTimeAmount);
+            } else if (functionIndex == 6) {
+                gemExit(userIndex, ilkIndex, amount, warpTimeAmount);
+            } else {
+                supply(userIndex, amount, warpTimeAmount);
+            }
+        }
     }
 
     // @audit changed visibility of all below functions to public to have them work with the Echidna contract
