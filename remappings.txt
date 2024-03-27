@@ -5,6 +5,7 @@
 @uniswap/v3-periphery/=lib/v3-periphery/
 @uniswap/v3-core/=lib/v3-core/
 @openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
+@chimera/=lib/chimera/src/
 balancer-v2-monorepo/=lib/balancer-v2-monorepo/
 chainlink/=lib/chainlink/
 ds-test/=lib/forge-safe/lib/ds-test/src/
