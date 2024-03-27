@@ -51,15 +51,15 @@ contract ActorManager is CommonBase, StdCheats, StdUtils, CryticAsserts {
         // if (globalUtilizationRate < 0.5e45) {
         functionIndex = bound(functionIndex, 0, 4);
 
-        if (functionIndex == 0) {
-            borrow(userIndex, ilkIndex, amount, warpTimeAmount);
-        } else if (functionIndex == 1) {
-            depositCollateral(userIndex, ilkIndex, amount, warpTimeAmount);
-        } else if (functionIndex == 2) {
-            gemJoin(userIndex, ilkIndex, amount, warpTimeAmount);
-        } else {
-            withdraw(userIndex, amount, warpTimeAmount);
-        }
+        // if (functionIndex == 0) {
+        borrow(userIndex, ilkIndex, amount, warpTimeAmount);
+        // } else if (functionIndex == 1) {
+        //     depositCollateral(userIndex, ilkIndex, amount, warpTimeAmount);
+        // } else if (functionIndex == 2) {
+        //     gemJoin(userIndex, ilkIndex, amount, warpTimeAmount);
+        // } else {
+        //     withdraw(userIndex, amount, warpTimeAmount);
+        // }
         // }
 
         // else if (globalUtilizationRate > 0.95e45) {

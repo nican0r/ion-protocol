@@ -1,26 +1,26 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
-import { WadRayMath, RAY } from "../../../src/libraries/math/WadRayMath.sol";
-import { IonRegistry } from "../../../src/periphery/IonRegistry.sol";
-import { GemJoin } from "../../../src/join/GemJoin.sol";
-import { SECONDS_IN_A_YEAR } from "../../../src/InterestRate.sol";
+import {WadRayMath, RAY} from "../../../src/libraries/math/WadRayMath.sol";
+import {IonRegistry} from "../../../src/periphery/IonRegistry.sol";
+import {GemJoin} from "../../../src/join/GemJoin.sol";
+import {SECONDS_IN_A_YEAR} from "../../../src/InterestRate.sol";
 
-import { IonPoolExposed } from "../../helpers/IonPoolSharedSetup.sol";
-import { ERC20PresetMinterPauser } from "../../helpers/ERC20PresetMinterPauser.sol";
-import { HEVM } from "../../helpers/echidna/IHevm.sol";
-import { InvariantHelpers } from "../../helpers/InvariantHelpers.sol";
+import {IonPoolExposed} from "../../helpers/IonPoolSharedSetup.sol";
+import {ERC20PresetMinterPauser} from "../../helpers/ERC20PresetMinterPauser.sol";
+import {HEVM} from "../../helpers/echidna/IHevm.sol";
+import {InvariantHelpers} from "../../helpers/InvariantHelpers.sol";
 
-import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
-import { LibString } from "solady/src/utils/LibString.sol";
+import {LibString} from "solady/src/utils/LibString.sol";
 
-import { CommonBase } from "forge-std/Base.sol";
-import { StdCheats } from "forge-std/StdCheats.sol";
-import { StdUtils } from "forge-std/StdUtils.sol";
+import {CommonBase} from "forge-std/Base.sol";
+import {StdCheats} from "forge-std/StdCheats.sol";
+import {StdUtils} from "forge-std/StdUtils.sol";
 
-import { safeconsole as console } from "forge-std/safeconsole.sol";
+import {safeconsole as console} from "forge-std/safeconsole.sol";
 
 using WadRayMath for uint256;
 using WadRayMath for uint16;
@@ -29,19 +29,35 @@ using Strings for uint256;
 using Strings for uint8;
 
 library DecimalToFixedPoint {
-    function toFixedPointString(uint256 value, uint256 scale) internal pure returns (string memory) {
+    function toFixedPointString(
+        uint256 value,
+        uint256 scale
+    ) internal pure returns (string memory) {
         uint256 tenScale = 10 ** scale;
 
         string memory valueAsString = value.toString();
-        string memory integerPartAsString = value / tenScale == 0 ? "0" : (value / tenScale).toString();
+        string memory integerPartAsString = value / tenScale == 0
+            ? "0"
+            : (value / tenScale).toString();
 
         uint256 valueLength = bytes(valueAsString).length;
         if (valueLength >= scale) {
-            return integerPartAsString.concat(string.concat(".", (valueAsString.slice(valueLength - scale))));
+            return
+                integerPartAsString.concat(
+                    string.concat(
+                        ".",
+                        (valueAsString.slice(valueLength - scale))
+                    )
+                );
         } else {
-            return integerPartAsString.concat(
-                string.concat(".", string(bytes("0")).repeat(scale - valueLength), valueAsString)
-            );
+            return
+                integerPartAsString.concat(
+                    string.concat(
+                        ".",
+                        string(bytes("0")).repeat(scale - valueLength),
+                        valueAsString
+                    )
+                );
         }
     }
 }
@@ -109,38 +125,86 @@ abstract contract Handler is CommonBase, StdCheats, StdUtils {
         uint256 utilizationRate;
     }
 
-    function reportAction(Actions actions, uint8 ilkIndex, uint256 amount) internal {
+    function reportAction(
+        Actions actions,
+        uint8 ilkIndex,
+        uint256 amount
+    ) internal {
         vm.writeLine(REPORT_FILE, "Action, IlkIndex, Amount");
 
         if (actions == Actions.SUPPLY) {
-            vm.writeLine(REPORT_FILE, string.concat("SUPPLY, ", "-, ", amount.toFixedPointString(18)));
+            vm.writeLine(
+                REPORT_FILE,
+                string.concat("SUPPLY, ", "-, ", amount.toFixedPointString(18))
+            );
         } else if (actions == Actions.WITHDRAW) {
-            vm.writeLine(REPORT_FILE, string.concat("WITHDRAW, ", "-, ", amount.toFixedPointString(18)));
+            vm.writeLine(
+                REPORT_FILE,
+                string.concat(
+                    "WITHDRAW, ",
+                    "-, ",
+                    amount.toFixedPointString(18)
+                )
+            );
         } else if (actions == Actions.BORROW) {
             vm.writeLine(
-                REPORT_FILE, string.concat("BORROW, ", ilkIndex.toString(), ", ", amount.toFixedPointString(18))
+                REPORT_FILE,
+                string.concat(
+                    "BORROW, ",
+                    ilkIndex.toString(),
+                    ", ",
+                    amount.toFixedPointString(18)
+                )
             );
         } else if (actions == Actions.REPAY) {
             vm.writeLine(
-                REPORT_FILE, string.concat("REPAY, ", ilkIndex.toString(), ", ", amount.toFixedPointString(18))
+                REPORT_FILE,
+                string.concat(
+                    "REPAY, ",
+                    ilkIndex.toString(),
+                    ", ",
+                    amount.toFixedPointString(18)
+                )
             );
         } else if (actions == Actions.DEPOSIT_COLLATERAL) {
             vm.writeLine(
                 REPORT_FILE,
-                string.concat("DEPOSIT_COLLATERAL, ", ilkIndex.toString(), ", ", amount.toFixedPointString(18))
+                string.concat(
+                    "DEPOSIT_COLLATERAL, ",
+                    ilkIndex.toString(),
+                    ", ",
+                    amount.toFixedPointString(18)
+                )
             );
         } else if (actions == Actions.WITHDRAW_COLLATERAL) {
             vm.writeLine(
                 REPORT_FILE,
-                string.concat("WITHDRAW_COLLATERAL, ", ilkIndex.toString(), ", ", amount.toFixedPointString(18))
+                string.concat(
+                    "WITHDRAW_COLLATERAL, ",
+                    ilkIndex.toString(),
+                    ", ",
+                    amount.toFixedPointString(18)
+                )
             );
         } else if (actions == Actions.GEM_JOIN) {
             vm.writeLine(
-                REPORT_FILE, string.concat("GEM_JOIN, ", ilkIndex.toString(), ", ", amount.toFixedPointString(18))
+                REPORT_FILE,
+                string.concat(
+                    "GEM_JOIN, ",
+                    ilkIndex.toString(),
+                    ", ",
+                    amount.toFixedPointString(18)
+                )
             );
         } else if (actions == Actions.GEM_EXIT) {
             vm.writeLine(
-                REPORT_FILE, string.concat("GEM_EXIT, ", ilkIndex.toString(), ", ", amount.toFixedPointString(18))
+                REPORT_FILE,
+                string.concat(
+                    "GEM_EXIT, ",
+                    ilkIndex.toString(),
+                    ", ",
+                    amount.toFixedPointString(18)
+                )
             );
         }
 
@@ -151,24 +215,43 @@ abstract contract Handler is CommonBase, StdCheats, StdUtils {
         globalState.totalSupply = ionPool.totalSupply();
         globalState.totalDebt = ionPool.debt();
         globalState.wethLiquidity = ionPool.weth();
-        globalState.utilizationRate = InvariantHelpers.getUtilizationRate(ionPool);
+        globalState.utilizationRate = InvariantHelpers.getUtilizationRate(
+            ionPool
+        );
 
-        require(ilkIndexedState.length == ionPool.ilkCount(), "invariant/IonPool/Handlers.t.sol: Ilk count mismatch");
+        require(
+            ilkIndexedState.length == ionPool.ilkCount(),
+            "invariant/IonPool/Handlers.t.sol: Ilk count mismatch"
+        );
         for (uint256 i = 0; i < ilkIndexedState.length; ++i) {
             uint8 _ilkIndex = uint8(i);
-            ilkIndexedState[i].totalNormalizedDebt = ionPool.totalNormalizedDebt(_ilkIndex);
+            ilkIndexedState[i].totalNormalizedDebt = ionPool
+                .totalNormalizedDebt(_ilkIndex);
             ilkIndexedState[i].rate = ionPool.rate(_ilkIndex);
-            ilkIndexedState[i].totalGem = registry.gemJoins(_ilkIndex).totalGem();
-            (uint256 currentBorrowRate,) = ionPool.getCurrentBorrowRate(_ilkIndex);
+            ilkIndexedState[i].totalGem = registry
+                .gemJoins(_ilkIndex)
+                .totalGem();
+            (uint256 currentBorrowRate, ) = ionPool.getCurrentBorrowRate(
+                _ilkIndex
+            );
             ilkIndexedState[i].newInterestRatePerSecond = currentBorrowRate;
-            ilkIndexedState[i].newInterestRatePerYear = ((currentBorrowRate - RAY) * SECONDS_IN_A_YEAR) + RAY;
-            ilkIndexedState[i].utilizationRate =
-                InvariantHelpers.getIlkSpecificUtilizationRate(ionPool, distributionFactors, _ilkIndex);
+            ilkIndexedState[i].newInterestRatePerYear =
+                ((currentBorrowRate - RAY) * SECONDS_IN_A_YEAR) +
+                RAY;
+            ilkIndexedState[i].utilizationRate = InvariantHelpers
+                .getIlkSpecificUtilizationRate(
+                    ionPool,
+                    distributionFactors,
+                    _ilkIndex
+                );
         }
 
         vm.writeLine(REPORT_FILE, "");
         vm.writeLine(REPORT_FILE, "GLOBAL STATE CHANGES");
-        vm.writeLine(REPORT_FILE, "Supply Factor, Total Supply, Total Debt, WETH Liquidity, Utilization Rate");
+        vm.writeLine(
+            REPORT_FILE,
+            "Supply Factor, Total Supply, Total Debt, WETH Liquidity, Utilization Rate"
+        );
         vm.writeLine(
             REPORT_FILE,
             string.concat(
@@ -195,15 +278,21 @@ abstract contract Handler is CommonBase, StdCheats, StdUtils {
             vm.writeLine(
                 REPORT_FILE,
                 string.concat(
-                    ilkIndexedState[i].totalNormalizedDebt.toFixedPointString(18),
+                    ilkIndexedState[i].totalNormalizedDebt.toFixedPointString(
+                        18
+                    ),
                     ", ",
                     ilkIndexedState[i].totalGem.toFixedPointString(18),
                     ", ",
                     ilkIndexedState[i].rate.toFixedPointString(27),
                     ", ",
-                    ilkIndexedState[i].newInterestRatePerSecond.toFixedPointString(27),
+                    ilkIndexedState[i]
+                        .newInterestRatePerSecond
+                        .toFixedPointString(27),
                     ", ",
-                    ilkIndexedState[i].newInterestRatePerYear.toFixedPointString(27),
+                    ilkIndexedState[i]
+                        .newInterestRatePerYear
+                        .toFixedPointString(27),
                     ", ",
                     ilkIndexedState[i].utilizationRate.toFixedPointString(27)
                 )
@@ -226,7 +315,14 @@ contract LenderHandler is Handler {
         bool _log,
         bool _report
     )
-        Handler(_ionPool, _underlying, _registry, _distributionFactors, _log, _report)
+        Handler(
+            _ionPool,
+            _underlying,
+            _registry,
+            _distributionFactors,
+            _log,
+            _report
+        )
     {
         underlying.approve(address(ionPool), type(uint256).max);
     }
@@ -251,7 +347,10 @@ contract LenderHandler is Handler {
 
     function withdraw(uint256 amount, uint256 warpTimeAmount) public {
         // To prevent reverts, limit withdraw amounts to the available liquidity in the pool
-        uint256 balance = Math.min(ionPool.weth(), ionPool.balanceOf(address(this)));
+        uint256 balance = Math.min(
+            ionPool.weth(),
+            ionPool.balanceOf(address(this))
+        );
         amount = bound(amount, 0, balance);
 
         _warpTime(warpTimeAmount);
@@ -281,14 +380,25 @@ contract BorrowerHandler is Handler {
         bool _log,
         bool _report
     )
-        Handler(_ionPool, _underlying, _registry, _distributionFactors, _log, _report)
+        Handler(
+            _ionPool,
+            _underlying,
+            _registry,
+            _distributionFactors,
+            _log,
+            _report
+        )
     {
         underlying.approve(address(_ionPool), type(uint256).max);
         ionPool.addOperator(address(_ionPool));
         collaterals = _collaterals;
     }
 
-    function borrow(uint8 ilkIndex, uint256 normalizedAmount, uint256 warpTimeAmount) public {
+    function borrow(
+        uint8 ilkIndex,
+        uint256 normalizedAmount,
+        uint256 warpTimeAmount
+    ) public {
         uint8 _ilkIndex = uint8(bound(ilkIndex, 0, ionPool.ilkCount()));
 
         _warpTime(warpTimeAmount);
@@ -296,9 +406,15 @@ contract BorrowerHandler is Handler {
         uint256 ilkRate = ionPool.rate(_ilkIndex);
         uint256 maxAdditionalNormalizedDebt;
         {
-            uint256 vaultCollateral = ionPool.collateral(_ilkIndex, address(this));
+            uint256 vaultCollateral = ionPool.collateral(
+                _ilkIndex,
+                address(this)
+            );
             uint256 ilkSpot = ionPool.spot(_ilkIndex).getSpot();
-            uint256 vaultNormalizedDebt = ionPool.normalizedDebt(_ilkIndex, address(this));
+            uint256 vaultNormalizedDebt = ionPool.normalizedDebt(
+                _ilkIndex,
+                address(this)
+            );
 
             uint256 currentDebt = vaultNormalizedDebt * ilkRate;
             uint256 debtLimit = ilkSpot * vaultCollateral;
@@ -306,36 +422,64 @@ contract BorrowerHandler is Handler {
             if (currentDebt > debtLimit) return; // Position is in liquidatable state
 
             uint256 maxAdditionalDebt = debtLimit - currentDebt;
-            maxAdditionalNormalizedDebt = _min(maxAdditionalDebt / ilkRate, type(uint64).max);
+            maxAdditionalNormalizedDebt = _min(
+                maxAdditionalDebt / ilkRate,
+                type(uint64).max
+            );
         }
 
         uint256 poolLiquidity = ionPool.weth();
         uint256 normalizedPoolLiquidity = poolLiquidity.rayDivDown(ilkRate);
 
-        normalizedAmount = _min(bound(normalizedAmount, 0, maxAdditionalNormalizedDebt), normalizedPoolLiquidity);
+        normalizedAmount = _min(
+            bound(normalizedAmount, 0, maxAdditionalNormalizedDebt),
+            normalizedPoolLiquidity
+        );
 
         if (LOG) console.log("borrow", normalizedAmount);
 
-        ionPool.borrow(_ilkIndex, address(this), address(this), normalizedAmount, new bytes32[](0));
+        ionPool.borrow(
+            _ilkIndex,
+            address(this),
+            address(this),
+            normalizedAmount,
+            new bytes32[](0)
+        );
 
         if (REPORT) reportAction(Actions.BORROW, _ilkIndex, normalizedAmount);
     }
 
-    function repay(uint8 ilkIndex, uint256 normalizedAmount, uint256 warpTimeAmount) public {
+    function repay(
+        uint8 ilkIndex,
+        uint256 normalizedAmount,
+        uint256 warpTimeAmount
+    ) public {
         uint8 _ilkIndex = uint8(bound(ilkIndex, 0, ionPool.ilkCount()));
 
-        uint256 currentNormalizedDebt = ionPool.normalizedDebt(_ilkIndex, address(this));
+        uint256 currentNormalizedDebt = ionPool.normalizedDebt(
+            _ilkIndex,
+            address(this)
+        );
         normalizedAmount = bound(normalizedAmount, 0, currentNormalizedDebt);
 
         if (LOG) console.log("repay", normalizedAmount);
 
         _warpTime(warpTimeAmount);
-        ionPool.repay(_ilkIndex, address(this), address(this), normalizedAmount);
+        ionPool.repay(
+            _ilkIndex,
+            address(this),
+            address(this),
+            normalizedAmount
+        );
 
         if (REPORT) reportAction(Actions.REPAY, _ilkIndex, normalizedAmount);
     }
 
-    function depositCollateral(uint8 ilkIndex, uint256 amount, uint256 warpTimeAmount) public {
+    function depositCollateral(
+        uint8 ilkIndex,
+        uint256 amount,
+        uint256 warpTimeAmount
+    ) public {
         uint8 _ilkIndex = uint8(bound(ilkIndex, 0, ionPool.ilkCount()));
 
         amount = bound(amount, 0, ionPool.gem(_ilkIndex, address(this)));
@@ -343,20 +487,36 @@ contract BorrowerHandler is Handler {
         if (LOG) console.log("depositCollateral", amount);
 
         _warpTime(warpTimeAmount);
-        ionPool.depositCollateral(_ilkIndex, address(this), address(this), amount, new bytes32[](0));
+        ionPool.depositCollateral(
+            _ilkIndex,
+            address(this),
+            address(this),
+            amount,
+            new bytes32[](0)
+        );
 
         if (REPORT) reportAction(Actions.DEPOSIT_COLLATERAL, _ilkIndex, amount);
     }
 
-    function withdrawCollateral(uint8 ilkIndex, uint256 amount, uint256 warpTimeAmount) public {
+    function withdrawCollateral(
+        uint8 ilkIndex,
+        uint256 amount,
+        uint256 warpTimeAmount
+    ) public {
         uint8 _ilkIndex = uint8(bound(ilkIndex, 0, ionPool.ilkCount()));
 
         uint256 ilkRate = ionPool.rate(_ilkIndex);
         uint256 maxRemovableCollateral;
         {
-            uint256 vaultCollateral = ionPool.collateral(_ilkIndex, address(this));
+            uint256 vaultCollateral = ionPool.collateral(
+                _ilkIndex,
+                address(this)
+            );
             uint256 ilkSpot = ionPool.spot(_ilkIndex).getSpot();
-            uint256 vaultNormalizedDebt = ionPool.normalizedDebt(_ilkIndex, address(this));
+            uint256 vaultNormalizedDebt = ionPool.normalizedDebt(
+                _ilkIndex,
+                address(this)
+            );
 
             uint256 currentDebt = vaultNormalizedDebt * ilkRate;
             uint256 minimumCollateral = currentDebt / ilkSpot;
@@ -368,12 +528,22 @@ contract BorrowerHandler is Handler {
         if (LOG) console.log("withdrawCollateral", amount);
 
         _warpTime(warpTimeAmount);
-        ionPool.withdrawCollateral(ilkIndex, address(this), address(this), amount);
+        ionPool.withdrawCollateral(
+            ilkIndex,
+            address(this),
+            address(this),
+            amount
+        );
 
-        if (REPORT) reportAction(Actions.WITHDRAW_COLLATERAL, _ilkIndex, amount);
+        if (REPORT)
+            reportAction(Actions.WITHDRAW_COLLATERAL, _ilkIndex, amount);
     }
 
-    function gemJoin(uint8 ilkIndex, uint256 amount, uint256 warpTimeAmount) public {
+    function gemJoin(
+        uint8 ilkIndex,
+        uint256 amount,
+        uint256 warpTimeAmount
+    ) public {
         uint8 _ilkIndex = uint8(bound(ilkIndex, 0, ionPool.ilkCount()));
         amount = bound(amount, 0, type(uint256).max);
 
@@ -393,7 +563,11 @@ contract BorrowerHandler is Handler {
         if (REPORT) reportAction(Actions.GEM_JOIN, _ilkIndex, amount);
     }
 
-    function gemExit(uint8 ilkIndex, uint256 amount, uint256 warpTimeAmount) public {
+    function gemExit(
+        uint8 ilkIndex,
+        uint256 amount,
+        uint256 warpTimeAmount
+    ) public {
         uint8 _ilkIndex = uint8(bound(ilkIndex, 0, ionPool.ilkCount()));
 
         amount = bound(amount, 0, ionPool.gem(_ilkIndex, address(this)));
@@ -421,6 +595,13 @@ contract LiquidatorHandler is Handler {
         bool _log,
         bool _report
     )
-        Handler(_ionPool, _underlying, _registry, _distributionFactors, _log, _report)
-    { }
+        Handler(
+            _ionPool,
+            _underlying,
+            _registry,
+            _distributionFactors,
+            _log,
+            _report
+        )
+    {}
 }
