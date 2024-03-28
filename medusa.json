@@ -5,7 +5,7 @@
 		"timeout": 0,
 		"testLimit": 0,
 		"callSequenceLength": 100,
-		"corpusDirectory": "medusa",
+		"corpusDirectory": "medusa-corpus",
 		"coverageEnabled": true,
 		"deploymentOrder": [
 			"IonPool_Echidna"

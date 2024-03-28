@@ -7,6 +7,7 @@ import {WadRayMath} from "../../../src/libraries/math/WadRayMath.sol";
 
 import {IonPoolSharedSetup} from "../../helpers/IonPoolSharedSetup.sol";
 import {InvariantHelpers} from "../../helpers/InvariantHelpers.sol";
+import {InvariantHelpersMock} from "./InvariantHelpersMock.sol";
 
 import {LenderHandler, BorrowerHandler, LiquidatorHandler} from "./Handlers.t.sol";
 
@@ -24,6 +25,8 @@ contract ActorManager is CommonBase, StdCheats, StdUtils, CryticAsserts {
     BorrowerHandler[] internal borrowers;
     LiquidatorHandler[] internal liquidators;
 
+    InvariantHelpersMock invariantHelpersMock;
+
     constructor(
         IonPool _ionPool,
         LenderHandler[] memory _lenders,
@@ -34,6 +37,7 @@ contract ActorManager is CommonBase, StdCheats, StdUtils, CryticAsserts {
         lenders = _lenders;
         borrowers = _borrowers;
         liquidators = _liquidators;
+        invariantHelpersMock = new InvariantHelpersMock();
     }
 
     // For a more interesting fuzz, we will use a custom fallback dispatcher.
@@ -44,9 +48,15 @@ contract ActorManager is CommonBase, StdCheats, StdUtils, CryticAsserts {
         uint128 warpTimeAmount,
         uint256 functionIndex
     ) public {
-        uint256 globalUtilizationRate = InvariantHelpers.getUtilizationRate(
-            ionPool
-        );
+        // @audit previous implementation
+        // uint256 globalUtilizationRate = InvariantHelpers.getUtilizationRate(
+        //     ionPool
+        // );
+
+        uint256 globalUtilizationRate;
+        try invariantHelpersMock.getUtilizationRate(ionPool) {} catch {
+            t(false, "getUtilizationRate reverted");
+        }
 
         if (globalUtilizationRate < 0.5e45) {
             functionIndex = bound(functionIndex, 0, 4);
