@@ -55,7 +55,9 @@ contract ActorManager is CommonBase, StdCheats, StdUtils, CryticAsserts {
 
         uint256 globalUtilizationRate;
         try invariantHelpersMock.getUtilizationRate(ionPool) {} catch {
-            t(false, "getUtilizationRate reverted");
+            // @audit trying this instead to see if it catches reverts
+            assert(false);
+            // t(false, "getUtilizationRate reverted");
         }
 
         if (globalUtilizationRate < 0.5e45) {
