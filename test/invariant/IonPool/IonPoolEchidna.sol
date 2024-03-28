@@ -2,9 +2,10 @@
 pragma solidity 0.8.21;
 
 import {IonPool_InvariantTest} from "./ActorManagerUpdated.t.sol";
+import {CryticAsserts} from "@chimera/CryticAsserts.sol";
 
 // run echidna: echidna test/invariant/IonPool/IonPoolEchidna.sol --contract IonPool_Echidna --config echidna-config.yaml
-contract IonPool_Echidna is IonPool_InvariantTest {
+contract IonPool_Echidna is IonPool_InvariantTest, CryticAsserts {
     constructor() {
         _setUp(false, false);
     }
@@ -24,7 +25,9 @@ contract IonPool_Echidna is IonPool_InvariantTest {
                 warpTimeAmount,
                 functionIndex
             )
-        {} catch {}
+        {} catch {
+            t(false, "fuzzedFallback reverts in Echidna contract");
+        }
     }
 
     // need to setup fuzzedFallback here to test like they're expecting
